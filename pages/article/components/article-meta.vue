@@ -24,10 +24,12 @@
       :class="{
         active: article.author.following
       }"
+      :disabled='isUpdatingFollow' 
+      @click='handleFollow'
     >
       <i class="ion-plus-round"></i>
       &nbsp;
-      Follow Eric Simons <span class="counter">(10)</span>
+      {{article.author.following? `Unfollow ` : `Follow `}}{{article.author.username}}
     </button>
     &nbsp;&nbsp;
     <button
@@ -35,10 +37,12 @@
       :class="{
         active: article.favorited
       }"
+      :disabled='isUpdatingFavorite' 
+      @click='handleFavorite'
     >
       <i class="ion-heart"></i>
       &nbsp;
-      Favorite Post <span class="counter">(29)</span>
+      {{article.favorited? 'Unfavorite': 'Favorite' }} Article <span class="counter">({{article.favoritesCount || 0}})</span>
     </button>
   </div>
 </template>
@@ -50,6 +54,22 @@ export default {
     article: {
       type: Object,
       required: true
+    },
+    isUpdatingFollow: {
+      type: Boolean,
+      default: false,
+    },
+    isUpdatingFavorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  methods: {
+    handleFollow () {
+      this.$emit('follow')
+    },
+    handleFavorite () {
+      this.$emit('favorite')
     }
   }
 }

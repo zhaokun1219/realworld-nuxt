@@ -1,12 +1,12 @@
 <template>
   <div>
-    <form class="card comment-form">
+    <form v-if="user" class="card comment-form">
       <div class="card-block">
-        <textarea class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+        <textarea v-model="commentInputValue" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
       </div>
       <div class="card-footer">
-        <img src="http://i.imgur.com/Qr71crq.jpg" class="comment-author-img" />
-        <button class="btn btn-sm btn-primary">
+        <img :src="user.image" class="comment-author-img" />
+        <button type="button" :disabled='isQueryingComment || isPostingComment' @click='handlePostComment' class="btn btn-sm btn-primary">
         Post Comment
         </button>
       </div>
@@ -45,7 +45,11 @@
 </template>
 
 <script>
-import { getComments } from '@/api/article'
+import { 
+  getComments,
+  addComment,
+} from '@/api/article'
+import { mapState } from 'vuex'
 
 export default {
   name: 'ArticleComments',
@@ -57,12 +61,46 @@ export default {
   },
   data () {
     return {
-      comments: [] // 文章列表
+      comments: [], // 评论列表
+      isQueryingComment: false,
+      isPostingComment: false,
+      commentInputValue: '',
     }
   },
+  computed: {
+    ...mapState(['user']),
+  },
   async mounted () {
-    const { data } = await getComments(this.article.slug)
-    this.comments = data.comments
+    this.queryComments()
+  },
+  
+  methods: {
+    async handlePostComment () {
+      if (!this.commentInputValue) {
+        return
+      }
+      this.isPostingComment = true;
+      try {
+        await addComment({
+          slug: this.article.slug,
+          comment: {
+            body: this.commentInputValue
+          }
+        })
+        this.queryComments()
+      } finally {
+        this.isPostingComment = false;
+      }
+    },
+    async queryComments () {
+      this.isQueryingComment = true
+      try {
+        const { data } = await getComments(this.article.slug)
+        this.comments = data.comments
+      } finally {
+        this.isQueryingComment = false
+      }  
+    }
   }
 }
 </script>

@@ -6,7 +6,13 @@
 
         <h1>{{ article.title }}</h1>
 
-        <article-meta :article="article" />
+        <article-meta 
+          :article="article"
+          :isUpdatingFollow='isUpdatingFollow'
+          :isUpdatingFavorite='isUpdatingFavorite'
+          @follow='handleFollow'
+          @favorite='handleFavorite' 
+        />
 
       </div>
     </div>
@@ -20,7 +26,13 @@
       <hr />
 
       <div class="article-actions">
-        <article-meta :article="article" />
+        <article-meta 
+          :article="article"
+          :isUpdatingFollow='isUpdatingFollow'
+          :isUpdatingFavorite='isUpdatingFavorite'
+          @follow='handleFollow'
+          @favorite='handleFavorite' 
+        />
       </div>
 
       <div class="row">
@@ -39,7 +51,15 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/article'
+import { 
+  follow,
+  unFollow,
+} from '@/api/profile'
+import { 
+  getArticle,
+  addFavorite,
+  deleteFavorite,
+} from '@/api/article'
 import MarkdownIt from 'markdown-it'
 import ArticleMeta from './components/article-meta'
 import ArticleComments from './components/article-comments'
@@ -66,7 +86,55 @@ export default {
         { hid: 'description', name: 'description', content: this.article.description }
       ]
     }
-  }
+  },
+  data () {
+    return {
+      isUpdatingFollow: false,
+      isUpdatingFavorite: false,
+    }
+  },
+  methods: {
+    async handleFollow () {
+      if (!this.$store.state.user) {
+        this.$router.push('/login')
+        return
+      }
+      this.isUpdatingFollow = true
+      const author = this.article.author
+      const isFollowed = author.following
+      try {
+        const { data } = isFollowed?
+          await unFollow(author.username) :
+          await follow(author.username)
+        author.following = data.profile.following
+      } finally {
+        this.isUpdatingFollow = false
+      }
+    },
+    async handleFavorite () {
+      if (!this.$store.state.user) {
+        this.$router.push('/login')
+        return
+      }
+      this.isUpdatingFavorite = true
+      const article = this.article
+      try {
+        if (article.favorited) {
+          // 取消点赞
+          await deleteFavorite(article.slug)
+          article.favorited = false
+          article.favoritesCount += -1
+        } else {
+          // 添加点赞
+          await addFavorite(article.slug)
+          article.favorited = true
+          article.favoritesCount += 1
+        }
+      } finally {
+        this.isUpdatingFavorite = false
+      }
+    }
+  },
 }
 </script>
 

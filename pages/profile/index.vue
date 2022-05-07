@@ -14,7 +14,7 @@
             <button v-if="!isSelf" :disabled='isUpdatingFollow' @click='handleFollow' class="btn btn-sm btn-outline-secondary action-btn">
               <i class="ion-plus-round"></i>
               &nbsp;
-              {{profile.following? `Unfollow` : `Follow `}}{{profile.username}}
+              {{profile.following? `Unfollow ` : `Follow `}}{{profile.username}}
             </button>
             <nuxt-link v-else class="btn btn-sm btn-outline-secondary action-btn" to="/settings">
               <i class="ion-gear-a"></i> Edit Profile Settings
@@ -176,14 +176,13 @@ export default {
       this.isUpdatingFollow = true;
       const isFollowed = this.profile.following
       try {
-        const { data } = isFollowed? 
-        await unFollow(this.profile.username) :
-        await follow(this.profile.username)
+        const { data } = isFollowed?
+          await unFollow(this.profile.username) :
+          await follow(this.profile.username)
         this.profile = data.profile
       } finally {
         this.isUpdatingFollow = false;
-      }
-      
+      }  
     },
     async handleFavorite (article) {
       if (!this.$store.state.user) {
@@ -191,18 +190,21 @@ export default {
         return
       }
       article.favoriteDisabled = true
-      if (article.favorited) {
-        // 取消点赞
-        await deleteFavorite(article.slug)
-        article.favorited = false
-        article.favoritesCount += -1
-      } else {
-        // 添加点赞
-        await addFavorite(article.slug)
-        article.favorited = true
-        article.favoritesCount += 1
+      try {
+        if (article.favorited) {
+          // 取消点赞
+          await deleteFavorite(article.slug)
+          article.favorited = false
+          article.favoritesCount += -1
+        } else {
+          // 添加点赞
+          await addFavorite(article.slug)
+          article.favorited = true
+          article.favoritesCount += 1
+        }
+      } finally {
+        article.favoriteDisabled = false
       }
-      article.favoriteDisabled = false
     }
   }
 }
