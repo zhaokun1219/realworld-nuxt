@@ -179,6 +179,7 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'HomeIndex',
+  scrollToTop: true,
   async asyncData ({ query }) {
     const page = Number.parseInt(query.page|| 1)
     const limit = 20

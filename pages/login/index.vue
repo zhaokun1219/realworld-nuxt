@@ -15,10 +15,7 @@
             <template
               v-for="(messages, field) in errors"
             >
-              <li
-                v-for="(message, index) in messages"
-                :key="index"
-              >{{ field }} {{ message }}</li>
+              <li :key='field'>{{ field }} {{ messages }}</li>
             </template>
           </ul>
 
@@ -61,8 +58,8 @@ export default {
     return {
       user: {
         username: '',
-        email: 'lpzmail@163.com',
-        password: '12345678'
+        email: '',
+        password: ''
       },
       errors: {} // 错误信息
     }
