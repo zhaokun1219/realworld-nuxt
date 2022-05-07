@@ -48,6 +48,7 @@ const Cookie = process.client ? require('js-cookie') : undefined
 export default {
   middleware: 'authenticated',
   name: 'SettingsIndex',
+  scrollToTop: true,
   data () {
     const user = this.$store.state.user
     return {

@@ -37,7 +37,10 @@
                   }"
                   exact
                   :to="{
-                    name: 'home'
+                    name: 'home',
+                    query: {
+                      tab: 'global_feed'
+                    }
                   }"
                 >Global Feed</nuxt-link>
               </li>
@@ -60,56 +63,62 @@
             </ul>
           </div>
 
-          <div
-            class="article-preview"
-            v-for="article in articles"
-            :key="article.slug"
-          >
-            <div class="article-meta">
-              <nuxt-link :to="{
-                name: 'profile',
-                params: {
-                  username: article.author.username
-                }
-              }">
-                <img :src="article.author.image" />
-              </nuxt-link>
-              <div class="info">
-                <nuxt-link class="author" :to="{
+          <template v-if="articles && articles.length">
+            <div
+              class="article-preview"
+              v-for="article in articles"
+              :key="article.slug"
+            >
+              <div class="article-meta">
+                <nuxt-link :to="{
                   name: 'profile',
                   params: {
                     username: article.author.username
                   }
                 }">
-                  {{ article.author.username }}
+                  <img :src="article.author.image" />
                 </nuxt-link>
-                <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
+                <div class="info">
+                  <nuxt-link class="author" :to="{
+                    name: 'profile',
+                    params: {
+                      username: article.author.username
+                    }
+                  }">
+                    {{ article.author.username }}
+                  </nuxt-link>
+                  <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
+                </div>
+                <button
+                  class="btn btn-outline-primary btn-sm pull-xs-right"
+                  :class="{
+                    active: article.favorited
+                  }"
+                  @click="onFavorite(article)"
+                  :disabled="article.favoriteDisabled"
+                >
+                  <i class="ion-heart"></i> {{ article.favoritesCount }}
+                </button>
               </div>
-              <button
-                class="btn btn-outline-primary btn-sm pull-xs-right"
-                :class="{
-                  active: article.favorited
+              <nuxt-link
+                class="preview-link"
+                :to="{
+                  name: 'article',
+                  params: {
+                    slug: article.slug
+                  }
                 }"
-                @click="onFavorite(article)"
-                :disabled="article.favoriteDisabled"
               >
-                <i class="ion-heart"></i> {{ article.favoritesCount }}
-              </button>
+                <h1>{{ article.title }}</h1>
+                <p>{{ article.description }}</p>
+                <span>Read more...</span>
+              </nuxt-link>
             </div>
-            <nuxt-link
-              class="preview-link"
-              :to="{
-                name: 'article',
-                params: {
-                  slug: article.slug
-                }
-              }"
-            >
-              <h1>{{ article.title }}</h1>
-              <p>{{ article.description }}</p>
-              <span>Read more...</span>
-            </nuxt-link>
+          </template>
+          <div v-else class="article-preview">
+            No articles are here... yet.
           </div>
+          
 
           <!-- 分页列表 -->
           <nav>
@@ -180,10 +189,10 @@ import { mapState } from 'vuex'
 export default {
   name: 'HomeIndex',
   scrollToTop: true,
-  async asyncData ({ query }) {
+  async asyncData ({ query, store }) {
     const page = Number.parseInt(query.page|| 1)
     const limit = 20
-    const tab = query.tab || 'global_feed'
+    const tab = query.tab || (store.state.user? 'your_feed' : 'global_feed')
     const tag = query.tag
     const tagLimit = 100
 

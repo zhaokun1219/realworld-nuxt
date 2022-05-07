@@ -73,6 +73,7 @@ import ArticleComments from './components/article-comments'
 
 export default {
   name: 'ArticleIndex',
+  scrollToTop: true,
   async asyncData ({ params, store }) {
     const { data } = await getArticle(params.slug)
     const { article } = data

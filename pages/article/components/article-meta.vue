@@ -20,7 +20,7 @@
       <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
     </div>
     <template v-if="isSelfArticle">
-      <nuxt-link class="btn btn-outline-secondary btn-sm" to='/editor'>
+      <nuxt-link class="btn btn-outline-secondary btn-sm" :to='`/editor/${article.slug}`'>
         <i class="ion-edit"></i> Edit Article
       </nuxt-link>
       <button @click='handleDeleteArticle' :disabled='isDeletingArticle' class="btn btn-outline-danger btn-sm">

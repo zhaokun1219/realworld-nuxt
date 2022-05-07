@@ -22,7 +22,12 @@
             <li class="nav-item">
               <nuxt-link
                 class="nav-link"
-                to="/editor"
+                :to="{
+                  name: 'editor',
+                  params: {
+                    slug: this.$route.name === 'editor'? this.$route.params.slug : undefined
+                  }
+                }"
               >
                 <i class="ion-compose"></i>&nbsp;New Article
               </nuxt-link>
@@ -93,7 +98,7 @@ export default {
   name: 'LayoutIndex',
   computed: {
     ...mapState(['user'])
-  }
+  },
 }
 </script>
 

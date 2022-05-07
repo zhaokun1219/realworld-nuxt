@@ -3,6 +3,9 @@
  */
 
 module.exports = {
+  head: {
+    title: 'realworld-nuxt'
+  },
   router: {
     linkActiveClass: 'active',
     // 自定义路由表规则
@@ -41,7 +44,7 @@ module.exports = {
               component: resolve(__dirname, 'pages/settings/')
             },
             {
-              path: '/editor',
+              path: '/editor/:slug?',
               name: 'editor',
               component: resolve(__dirname, 'pages/editor/')
             },

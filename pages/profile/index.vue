@@ -134,6 +134,7 @@ import {
 } from '@/api/article'
 export default {
   name: 'UserProfile',
+  scrollToTop: true,
   async asyncData ({ params, query }) {
     const { username } = params
     const { tab = 'self' } = query
