@@ -39,6 +39,9 @@
           {{ comment.author.username }}
         </nuxt-link>
         <span class="date-posted">{{ comment.createdAt | date('MMM DD, YYYY') }}</span>
+        <span v-if="user && user.username === comment.author.username" @click='handleDeleteComment(comment)' class="mod-options">
+          <i class="ion-trash-a"></i>
+        </span>
       </div>
     </div>
   </div>
@@ -48,6 +51,7 @@
 import { 
   getComments,
   addComment,
+  deleteComment,
 } from '@/api/article'
 import { mapState } from 'vuex'
 
@@ -87,6 +91,7 @@ export default {
             body: this.commentInputValue
           }
         })
+        this.commentInputValue = ''
         this.queryComments()
       } finally {
         this.isPostingComment = false;
@@ -100,6 +105,19 @@ export default {
       } finally {
         this.isQueryingComment = false
       }  
+    },
+    async handleDeleteComment (comment) {
+      if (comment.isDeleting) {
+        return
+      }
+      comment.isDeleting = true
+      try {
+        await deleteComment(this.article.slug, comment.id)
+        let index = this.comments.indexOf(comment)
+        index !== -1 && this.comments.splice(index, 1)
+      } catch (err) {
+        comment.isDeleting = false
+      }
     }
   }
 }

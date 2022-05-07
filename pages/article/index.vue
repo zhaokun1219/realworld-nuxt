@@ -7,11 +7,14 @@
         <h1>{{ article.title }}</h1>
 
         <article-meta 
+          :isSelfArticle='isSelfArticle'
           :article="article"
           :isUpdatingFollow='isUpdatingFollow'
           :isUpdatingFavorite='isUpdatingFavorite'
+          :isDeletingArticle='isDeletingArticle'
           @follow='handleFollow'
           @favorite='handleFavorite' 
+          @deleteArticle='handleDeleteArticle'
         />
 
       </div>
@@ -27,11 +30,14 @@
 
       <div class="article-actions">
         <article-meta 
+          :isSelfArticle='isSelfArticle'
           :article="article"
           :isUpdatingFollow='isUpdatingFollow'
           :isUpdatingFavorite='isUpdatingFavorite'
+          :isDeletingArticle='isDeletingArticle'
           @follow='handleFollow'
           @favorite='handleFavorite' 
+          @deleteArticle='handleDeleteArticle'
         />
       </div>
 
@@ -59,6 +65,7 @@ import {
   getArticle,
   addFavorite,
   deleteFavorite,
+  deleteArticle,
 } from '@/api/article'
 import MarkdownIt from 'markdown-it'
 import ArticleMeta from './components/article-meta'
@@ -66,13 +73,14 @@ import ArticleComments from './components/article-comments'
 
 export default {
   name: 'ArticleIndex',
-  async asyncData ({ params }) {
+  async asyncData ({ params, store }) {
     const { data } = await getArticle(params.slug)
     const { article } = data
     const md = new MarkdownIt()
     article.body = md.render(article.body)
     return {
-      article
+      article,
+      isSelfArticle: Boolean(store.state.user && store.state.user.username === article.author.username) 
     }
   },
   components: {
@@ -91,6 +99,7 @@ export default {
     return {
       isUpdatingFollow: false,
       isUpdatingFavorite: false,
+      isDeletingArticle: false,
     }
   },
   methods: {
@@ -132,6 +141,15 @@ export default {
         }
       } finally {
         this.isUpdatingFavorite = false
+      }
+    },
+    async handleDeleteArticle () {
+      this.isDeletingArticle = true
+      try {
+        await deleteArticle(this.article.slug)
+        this.$router.push('/')
+      } catch (err) {
+        this.isDeletingArticle = false
       }
     }
   },
