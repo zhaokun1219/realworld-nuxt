@@ -185,8 +185,9 @@ export default {
     const limit = 20
     const tab = query.tab || 'global_feed'
     const tag = query.tag
+    const tagLimit = 100
 
-    const loadArticles = tab === 'global_feed'
+    const loadArticles = tab === 'global_feed' || tab === 'tag'
       ? getArticles
       : getYourFeedArticles
 
@@ -201,7 +202,9 @@ export default {
 
     const { articles, articlesCount } = articleRes.data
     const { tags } = tagRes.data
-
+    if(tags && tags.length > tagLimit){
+      tags.splice(tagLimit)
+    }
     articles.forEach(article => article.favoriteDisabled = false)
 
     return {
